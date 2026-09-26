@@ -10,27 +10,7 @@ $("#loginForm").addEventListener("submit",async e=>{e.preventDefault();message("
 $("#resetBtn").addEventListener("click",async()=>{const email=$("#loginEmail").value.trim();if(!email)return message("Escribe tu correo primero.");const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.origin});message(error?"No pudimos enviar el enlace.": "Te enviamos un enlace para restablecer tu contraseña.",!error)});
 $("#logoutBtn").addEventListener("click",async()=>{await db.auth.signOut();location.reload()});
 async function boot(){const {data:{user}}=await db.auth.getUser();if(!user){$("#authView").hidden=false;$("#dashboardView").hidden=true;return}
-const {data:isAdmin}=await db.rpc("is_directiva");
-directivaMode=!!isAdmin;
-if(directivaMode){
-  current=user;member=null;
-  $("#authView").hidden=true;$("#dashboardView").hidden=false;
-  $("#topName").textContent="Directiva NOVA";$("#topRole").textContent="MODO VISUALIZACIÓN";
-  $("#topAvatar").textContent="N";
-  $("#heroName").textContent="Directiva";
-  $("#heroSub").textContent="Estás visualizando el portal de Integrantes sin crear una cuenta de integrante.";
-  $("#profileName").textContent="Vista de Directiva";
-  $("#profileUsername").textContent="@directiva";
-  $("#profileCourse").textContent="Acceso administrativo";
-  $("#areaChips").innerHTML="<span>👁️ Vista de integrante</span><span>🔐 Directiva</span>";
-  $("#houseBadge").innerHTML="<span>✦</span><div><small>MODO</small><strong>VISUALIZACIÓN</strong></div>";
-  $("#areaSection").hidden=false;
-  $("#areaModules").innerHTML='<article class="module" style="--module-line:#36a9ff33;--module-soft:rgba(54,169,255,.06)"><div class="module-head"><div><div class="module-icon">👁️</div><h4>Vista previa del integrante</h4></div><span class="muted">DIRECTIVA</span></div><p>Esta es la experiencia que verá un integrante de NOVA. No se ha creado ni vinculado ninguna cuenta de integrante.</p><div class="data"><div class="data-row"><span>Acceso</span><b>Visualización</b></div><div class="data-row"><span>Permisos</span><b>Directiva</b></div></div></article>';
-  $("#timeline").innerHTML='<div class="timeline-item"><strong>🔐 Sesión de Directiva</strong>Acceso administrativo activo</div><div class="timeline-item"><strong>👥 Portal de Integrantes</strong>Visualización habilitada sin cuenta de integrante</div>';
-  await Promise.all([loadHouses(),loadActivities(),loadAchievements()]);
-  subscribeRealtime();
-  return;
-}
+directivaMode=false;
 const {data:m,error}=await db.from("integrantes").select("*").eq("user_id",user.id).maybeSingle();if(error||!m){await db.auth.signOut();message("Tu cuenta todavía no está vinculada a un integrante aprobado.");return}member=m;current=user;$("#authView").hidden=true;$("#dashboardView").hidden=false;await Promise.all([loadProfile(),loadHouses(),loadAreas(),loadActivities(),loadFeedback(),loadAchievements()]);subscribeRealtime()}
 async function loadProfile(){const initials=member.nombre_completo.split(/\s+/).map(x=>x[0]).slice(0,2).join("").toUpperCase();$("#topAvatar").textContent=initials;$("#topName").textContent=member.nombre_completo;$("#heroName").textContent=member.nombre_completo.split(" ")[0];$("#profileName").textContent=member.nombre_completo;$("#topRole").textContent=member.username?"@"+member.username:"NOVA MEMBER";$("#profileUsername").textContent=member.username?"@"+member.username:"@nova";$("#profileCourse").textContent=(member.curso||"NOVA")+" · "+(member.seccion||"");const {data:house}=await db.from("casas").select("*").eq("id",member.casa_id).maybeSingle();renderHouseBadge(house)}
 function renderHouseBadge(h){const el=$("#houseBadge");if(!h){el.innerHTML="<span>✦</span><div><small>CASA</small><strong>Asignación pendiente</strong></div>";return}const x=houseMeta[h.nombre]||{e:"✦",c:"#9db0c8",g:"rgba(157,176,200,.25)"};el.style.borderColor=x.c;el.innerHTML=`<span>${x.e}</span><div><small>TU CASA</small><strong>${esc(h.nombre)}</strong></div>`}
