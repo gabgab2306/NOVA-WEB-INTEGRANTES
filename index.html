@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#050912">
+<title>NOVA · Integrantes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div id="app">
+  <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
+  <section id="authView" class="auth-view">
+    <div class="brand-mark"><span>N</span><i>O</i><b>V</b><em>A</em></div>
+    <p class="kicker">LEADERSHIP CLUB · INTEGRANTES</p>
+    <h1>Tu lugar dentro de<br><strong>NOVA</strong></h1>
+    <p class="lead">Entra a tu espacio personal, descubre tu casa, tus áreas, tus actividades y todo lo que vas construyendo dentro del club.</p>
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-mode="signup">Crear cuenta</button>
+        <button class="auth-tab" data-mode="login">Iniciar sesión</button>
+      </div>
+      <div id="signupPanel">
+        <div class="notice">🔐 Solo pueden registrarse integrantes que ya hayan sido aprobados por NOVA.</div>
+        <form id="signupForm">
+          <label>Correo aprobado<input id="signupEmail" type="email" autocomplete="email" required placeholder="tu.correo@email.com"></label>
+          <label>Contraseña<input id="signupPassword" type="password" minlength="8" autocomplete="new-password" required placeholder="Mínimo 8 caracteres"></label>
+          <label>Repite tu contraseña<input id="signupPassword2" type="password" minlength="8" autocomplete="new-password" required placeholder="Repite la contraseña"></label>
+          <button class="primary-btn" type="submit">Comenzar mi cuenta <span>↗</span></button>
+        </form>
+      </div>
+      <div id="loginPanel" hidden>
+        <form id="loginForm">
+          <label>Correo<input id="loginEmail" type="email" autocomplete="email" required placeholder="tu.correo@email.com"></label>
+          <label>Contraseña<input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Tu contraseña"></label>
+          <button class="primary-btn" type="submit">Entrar a NOVA <span>→</span></button>
+        </form>
+        <button id="resetBtn" class="text-btn" type="button">¿Olvidaste tu contraseña?</button>
+      </div>
+      <p id="authMessage" class="auth-message" aria-live="polite"></p>
+    </div>
+    <p class="footer-note">NOVA · Un espacio privado para quienes forman parte del club.</p>
+  </section>
+
+  <section id="dashboardView" hidden>
+    <header class="topbar">
+      <div class="brand-small"><span>N</span><b>OVA</b></div>
+      <div class="top-user"><div id="topAvatar">N</div><div><strong id="topName">Integrante</strong><small id="topRole">NOVA MEMBER</small></div><button id="logoutBtn" title="Cerrar sesión">↗</button></div>
+    </header>
+    <main class="dashboard">
+      <section class="hero">
+        <div><p class="kicker">ESPACIO DEL INTEGRANTE</p><h2>Bienvenida, <span id="heroName">NOVA</span>.</h2><p id="heroSub">Tu recorrido dentro del club empieza aquí.</p></div>
+        <div id="houseBadge" class="house-badge"><span>✦</span><small>CASA</small><strong>Sin casa</strong></div>
+      </section>
+
+      <section class="house-board">
+        <div class="section-title"><div><p class="kicker">LAS CINCO CASAS</p><h3>El tablero está vivo.</h3></div><span class="live"><i></i> EN TIEMPO REAL</span></div>
+        <div id="houseBoard" class="house-board-grid"></div>
+      </section>
+
+      <section class="overview-grid">
+        <article class="profile-card panel">
+          <div class="panel-title"><span>👤</span><div><p class="kicker">MI PERFIL</p><h3 id="profileName">Integrante</h3></div></div>
+          <div class="profile-meta"><span id="profileUsername">@nova</span><span id="profileCourse">Curso</span></div>
+          <div id="areaChips" class="chips"></div>
+        </article>
+        <article class="panel trajectory">
+          <div class="panel-title"><span>✦</span><div><p class="kicker">MI TRAYECTORIA</p><h3>Lo que llevas construido</h3></div></div>
+          <div class="timeline" id="timeline"></div>
+        </article>
+      </section>
+
+      <section id="areaSection" class="section-block" hidden>
+        <div class="section-title"><div><p class="kicker">MIS ÁREAS</p><h3>Tu NOVA se adapta a ti.</h3></div></div>
+        <div id="areaModules" class="module-grid"></div>
+      </section>
+
+      <section class="section-block">
+        <div class="section-title"><div><p class="kicker">ACTIVIDADES</p><h3>Lo que viene.</h3></div><span id="activityCount" class="muted"></span></div>
+        <div id="activityList" class="activity-grid"></div>
+      </section>
+
+      <section class="two-col">
+        <section class="section-block"><div class="section-title"><div><p class="kicker">FEEDBACK</p><h3>Lo que te han dejado.</h3></div></div><div id="feedbackList" class="feedback-list"></div></section>
+        <section class="section-block"><div class="section-title"><div><p class="kicker">LOGROS</p><h3>Lo que has desbloqueado.</h3></div></div><div id="achievementList" class="achievement-list"></div></section>
+      </section>
+    </main>
+  </section>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./app.js"></script>
+</body>
+</html>
