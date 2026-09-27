@@ -51,8 +51,8 @@
       <div class="brand-small"><span>N</span><b>OVA</b></div>
       <div class="top-user"><div id="topAvatar">N</div><div><strong id="topName">Integrante</strong><small id="topRole">NOVA MEMBER</small></div><button id="logoutBtn" title="Cerrar sesión">↗</button></div>
     </header>
-    <main class="dashboard">
-      <section class="hero">
+    <nav class="member-nav" aria-label="Secciones del portal"><button class="member-nav-btn active" data-view="home">Inicio</button><button class="member-nav-btn" data-view="profile">Perfil</button><button class="member-nav-btn" data-view="areas">Áreas</button><button class="member-nav-btn" data-view="activities">Actividades</button><button class="member-nav-btn" data-view="community">Feedback & logros</button></nav><main class="dashboard">
+      <section id="viewHome" class="portal-view active-view"><section class="hero">
         <div><p class="kicker">ESPACIO DEL INTEGRANTE</p><h2>Bienvenida, <span id="heroName">NOVA</span>.</h2><p id="heroSub">Tu recorrido dentro del club empieza aquí.</p></div>
         <div id="houseBadge" class="house-badge"><span>✦</span><small>CASA</small><strong>Sin casa</strong></div>
       </section>
@@ -60,9 +60,9 @@
       <section class="house-board">
         <div class="section-title"><div><p class="kicker">LAS CINCO CASAS</p><h3>El tablero está vivo.</h3></div><span class="live"><i></i> EN TIEMPO REAL</span></div>
         <div id="houseBoard" class="house-board-grid"></div>
-      </section>
+      </section></section>
 
-      <section class="overview-grid">
+      <section id="viewProfile" class="portal-view" hidden><section class="overview-grid">
         <article class="profile-card panel">
           <div class="panel-title"><span>👤</span><div><p class="kicker">MI PERFIL</p><h3 id="profileName">Integrante</h3></div></div>
           <div class="profile-meta"><span id="profileUsername">@nova</span><span id="profileCourse">Curso</span></div>
@@ -72,22 +72,22 @@
           <div class="panel-title"><span>✦</span><div><p class="kicker">MI TRAYECTORIA</p><h3>Lo que llevas construido</h3></div></div>
           <div class="timeline" id="timeline"></div>
         </article>
-      </section>
+      </section></section>
 
-      <section id="areaSection" class="section-block" hidden>
+      <section id="viewAreas" class="portal-view" hidden><section id="areaSection" class="section-block" hidden>
         <div class="section-title"><div><p class="kicker">MIS ÁREAS</p><h3>Tu NOVA se adapta a ti.</h3></div></div>
         <div id="areaModules" class="module-grid"></div>
-      </section>
+      </section></section>
 
-      <section class="section-block">
+      <section id="viewActivities" class="portal-view" hidden><section class="section-block">
         <div class="section-title"><div><p class="kicker">ACTIVIDADES</p><h3>Lo que viene.</h3></div><span id="activityCount" class="muted"></span></div>
         <div id="activityList" class="activity-grid"></div>
-      </section>
+      </section></section>
 
-      <section class="two-col">
+      <section id="viewCommunity" class="portal-view" hidden><section class="two-col">
         <section class="section-block"><div class="section-title"><div><p class="kicker">FEEDBACK</p><h3>Lo que te han dejado.</h3></div></div><div id="feedbackList" class="feedback-list"></div></section>
         <section class="section-block"><div class="section-title"><div><p class="kicker">LOGROS</p><h3>Lo que has desbloqueado.</h3></div></div><div id="achievementList" class="achievement-list"></div></section>
-      </section>
+      </section></section>
     </main>
   </section>
 </div>
