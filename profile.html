@@ -1,7 +1,27 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NOVA · Perfil</title><link rel="stylesheet" href="./styles.css"></head><body><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="./portal.js"></script><script>
 boot("profile","Perfil","MI ESPACIO",async()=>{
- const {data:areas}=await db.from("integrante_areas").select("*").eq("integrante_id",member.id).order("area");
- const house=(await db.from("casas").select("*").eq("id",member.casa_id).maybeSingle()).data;
- document.querySelector("#page").innerHTML='<section class="page-intro"><p class="eyebrow">MI PERFIL</p><h1>'+esc(member.nombre_completo)+'</h1><p>@'+esc(member.username||"member")+' · '+esc(member.curso||"")+' '+esc(member.seccion||"")+'</p></section><div class="profile-grid"><article class="panel identity"><div class="big-avatar">'+esc(initials(member.nombre_completo))+'</div><p class="eyebrow">INTEGRANTE NOVA</p><h2>'+esc(member.nombre_completo)+'</h2><p class="muted">'+esc(member.email||"")+'</p><dl><div><dt>Teléfono</dt><dd>'+esc(member.telefono||"No registrado")+'</dd></div><div><dt>Motivación</dt><dd>'+esc(member.motivacion||"No registrada")+'</dd></div><div><dt>Experiencia</dt><dd>'+((member.experiencia===true)?"Sí":"No")+'</dd></div><div><dt>Casa</dt><dd>'+esc(house?.nombre||"Pendiente")+'</dd></div></dl></article><article class="panel"><p class="eyebrow">TRAYECTORIA</p><h2>Áreas dentro de NOVA</h2><div class="list">'+((areas||[]).map(a=>'<div class="list-row"><span>✦</span><div><b>'+esc(a.area)+'</b><small>'+esc(a.detalle||"Asignación activa dentro del club.")+'</small></div></div>').join("")||empty("Todavía no tienes un área asignada."))+'</div></article></div>';
+ const [areasR,munR,debateR,staffR,houseR]=await Promise.all([
+  db.from("integrante_areas").select("*").eq("integrante_id",member.id).order("area"),
+  db.from("mun_asignaciones").select("*").eq("integrante_id",member.id).maybeSingle(),
+  db.from("debate_tripletas").select("*").eq("integrante_id",member.id).maybeSingle(),
+  db.from("staff_asignaciones").select("*").eq("integrante_id",member.id).maybeSingle(),
+  db.from("casas").select("*").eq("id",member.casa_id).maybeSingle()
+ ]);
+ const areas=areasR.data||[],mun=munR.data,debate=debateR.data,staff=staffR.data,house=houseR.data;
+ const interests=Array.isArray(member.intereses)?member.intereses:[];
+ document.querySelector("#page").innerHTML=`
+ <section class="page-intro"><p class="eyebrow">MI PERFIL</p><h1>${esc(member.nombre_completo)}</h1><p>@${esc(member.username||"member")} · ${esc(member.curso||"")} ${esc(member.seccion||"")}</p></section>
+ <div class="profile-sections">
+  <article class="panel profile-card"><div class="big-avatar">${esc(initials(member.nombre_completo))}</div><p class="eyebrow">INFORMACIÓN PERSONAL</p><h2>${esc(member.nombre_completo)}</h2><p class="muted">${esc(member.email||"")}</p><div class="data-list">
+   <div><small>Teléfono</small><b>${esc(member.telefono||"No registrado")}</b></div><div><small>Curso / sección</small><b>${esc(member.curso||"")} · ${esc(member.seccion||"")}</b></div><div><small>Casa</small><b>${esc(house?.nombre||"Asignación pendiente")}</b></div><div><small>Experiencia</small><b>${member.experiencia?"Sí":"No"}</b></div>
+  </div></article>
+  <article class="panel profile-card"><p class="eyebrow">INTERESES</p><h2>Lo que te mueve.</h2><div class="tag-list">${interests.map(x=>`<span>${esc(x)}</span>`).join("")||"<small class='muted'>Sin intereses registrados.</small>"}</div><div class="profile-note"><small>MOTIVACIÓN</small><p>${esc(member.motivacion||"Aún no registrada.")}</p></div><div class="profile-note"><small>EXPERIENCIA PREVIA</small><p>${esc(member.detalle_experiencia||"Sin detalle registrado.")}</p></div></article>
+  <article class="panel profile-card"><p class="eyebrow">ÁREAS ASIGNADAS</p><h2>Tu participación.</h2><div class="compact-list">${areas.map(a=>`<div><span>✦</span><b>${esc(a.area)}</b><small>${esc(a.detalle||"Asignación activa")}</small></div>`).join("")||"<div class='empty'>No hay áreas asignadas todavía.</div>"}</div></article>
+  <article class="panel profile-card"><p class="eyebrow">ASIGNACIONES ESPECIALES</p><h2>Tu rol dentro de NOVA.</h2>
+   <div class="assignment"><span>MUN / ONU</span><b>${esc(mun?.pais||"Sin país asignado")}</b><small>${esc(mun?.comision||"")} ${mun?.delegacion?"· "+esc(mun.delegacion):""}</small></div>
+   <div class="assignment"><span>DEBATE</span><b>${esc(debate?.nombre_tripleta||"Sin tripleta asignada")}</b><small>${esc(Array.isArray(debate?.companeros)?debate.companeros.join(" · "):"")}</small></div>
+   <div class="assignment"><span>STAFF</span><b>${esc(staff?.rol||"Sin rol asignado")}</b><small>${esc(staff?.area_staff||"")}</small></div>
+  </article>
+ </div>`;
 });
 </script></body></html>
