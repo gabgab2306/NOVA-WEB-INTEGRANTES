@@ -124,3 +124,38 @@
   .bottom-nav a small{font-size:6px}
   .house{min-height:190px}
 }
+
+/* NOVA MAGIC MOBILE / DESKTOP */
+.app-shell{background:
+ radial-gradient(ellipse at 15% 5%,rgba(25,128,205,.12),transparent 32%),
+ radial-gradient(ellipse at 85% 92%,rgba(214,170,69,.10),transparent 30%),
+ #050a12}
+.app-page{position:relative}
+.app-page:before{content:"";position:fixed;inset:76px 0 0;pointer-events:none;background:radial-gradient(circle at 50% 15%,rgba(83,184,255,.05),transparent 35%);z-index:-1}
+.house-chart{height:calc(100% - 48px);min-height:220px;display:flex;align-items:end;gap:14px;padding:22px 18px 8px;border:1px solid rgba(130,180,225,.12);border-radius:22px;background:linear-gradient(180deg,rgba(12,24,40,.72),rgba(5,11,19,.88));position:relative;overflow:hidden}
+.house-chart:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 24%,rgba(130,180,225,.07) 25%,transparent 26%,transparent 49%,rgba(130,180,225,.07) 50%,transparent 51%,transparent 74%,rgba(130,180,225,.07) 75%,transparent 76%);pointer-events:none}
+.chart-bars{height:100%;flex:1;display:flex;align-items:end;justify-content:space-around;gap:10px;position:relative;z-index:1}
+.chart-house{height:100%;flex:1;display:flex;flex-direction:column;justify-content:end;align-items:center;min-width:0;color:var(--house)}
+.bar-value{font:700 12px Georgia,serif;margin-bottom:6px}
+.bar{width:min(58px,75%);height:70%;display:flex;align-items:end;border-radius:12px 12px 5px 5px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);overflow:hidden}
+.bar span{display:block;width:100%;height:var(--pct);background:linear-gradient(180deg,var(--house),rgba(255,255,255,.12));box-shadow:0 0 22px color-mix(in srgb,var(--house) 45%,transparent);border-radius:10px 10px 3px 3px}
+.chart-label{text-align:center;margin-top:9px;min-width:0}
+.chart-label b{font-size:14px}.chart-label strong{display:block;color:#edf4fc;font:700 12px Georgia,serif;margin-top:3px}.chart-label small{display:block;color:#63748b;font-size:7px;margin-top:2px}
+.chart-house.mine .bar span{box-shadow:0 0 30px color-mix(in srgb,var(--house) 70%,transparent)}
+.profile-card{position:relative}
+.profile-card:before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(circle at 90% 0%,rgba(85,183,255,.07),transparent 35%)}
+@media(max-width:760px){
+ .app-page{padding:12px 10px 24px;height:calc(100dvh - 132px);overflow-y:auto}
+ .house-chart{height:300px;min-height:300px;padding:18px 8px 9px;gap:3px;border-radius:18px}
+ .chart-bars{gap:4px}
+ .bar{width:62%;max-width:48px}
+ .chart-label b{font-size:11px}.chart-label strong{font-size:9px}.chart-label small{font-size:6px}
+ .bar-value{font-size:9px}
+ .profile-sections{display:flex!important;flex-direction:column!important;height:auto!important;gap:10px}
+ .profile-card{width:100%;height:auto!important;min-height:0!important;overflow:visible!important;padding:15px!important}
+ .profile-card .data-list{grid-template-columns:1fr!important}
+ .profile-card .tag-list{max-width:100%}
+ .profile-card h2{font-size:17px}
+ .profile-card p{max-width:100%}
+ .profile-card .profile-note p{overflow-wrap:anywhere}
+}
