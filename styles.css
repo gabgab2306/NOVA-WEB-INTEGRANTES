@@ -222,3 +222,19 @@ html,body{height:100%;overflow:hidden}
   .profile-sections{grid-template-rows:repeat(4,minmax(0,1fr))!important;gap:7px!important}
   .profile-card{padding:12px!important}
 }
+
+
+/* Inicio: mismo comportamiento tipo app, contenido desplazable dentro del viewport */
+.page-home{overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch}
+.page-home::-webkit-scrollbar{display:none;width:0;height:0}
+@media(max-width:760px){
+  .page-home{
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    height:calc(100dvh - 132px)!important;
+    padding-bottom:28px!important;
+  }
+  .page-home .welcome{flex:none}
+  .page-home .section{flex:none}
+  .page-home .upcoming{flex:none}
+}
