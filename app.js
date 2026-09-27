@@ -23,3 +23,6 @@ async function loadFeedback(){if(directivaMode){$("#feedbackList").innerHTML="<d
 async function loadAchievements(){const a=[["🏛️","Primera intervención","Participación inicial en NOVA"],["🎙️","Voz NOVA","Reconocimiento por oratoria"],["🌐","Delegado NOVA","Participación en MUN"],["⚔️","Debate","Participación en debate"],["👑","Liderazgo","Reconocimiento de liderazgo"],["📋","Organizador","Participación en organización"]];$("#achievementList").innerHTML=a.map(x=>`<article class="achievement"><span class="medal">${x[0]}</span><div><strong>${x[1]}</strong><small>${x[2]}</small></div></article>`).join("")}
 function subscribeRealtime(){db.channel("nova-casas-live").on("postgres_changes",{event:"UPDATE",schema:"public",table:"casas"},()=>loadHouses()).subscribe()}
 db.auth.getSession().then(({data:{session}})=>session?boot():null);
+
+// Portal navigation: every section fits inside one viewport, no page scrolling.
+document.querySelectorAll('.member-nav-btn').forEach(btn=>btn.addEventListener('click',()=>{const view=btn.dataset.view;document.querySelectorAll('.portal-view').forEach(v=>v.hidden=true);const target=document.getElementById('view'+view.charAt(0).toUpperCase()+view.slice(1));if(target)target.hidden=false;document.querySelectorAll('.member-nav-btn').forEach(b=>b.classList.toggle('active',b===btn));}));
