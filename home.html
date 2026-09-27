@@ -2,6 +2,17 @@
 boot("home","Inicio","PORTAL DEL INTEGRANTE",async()=>{
  const {data:houses}=await db.from("casas").select("*").order("puntos",{ascending:false});
  const list=houses||[],mine=list.find(h=>h.id===member.casa_id),hm=houseMeta[mine?.nombre]||{symbol:"✦",color:"#d7ae52"};
- document.querySelector("#page").innerHTML='<section class="welcome"><div><p class="eyebrow">ESPACIO DEL INTEGRANTE</p><h1>Bienvenida, <strong>'+esc(firstName(member.nombre_completo))+'.</strong></h1><p>Tu espacio personal dentro de NOVA.</p></div><div class="my-house" style="--house:'+hm.color+'"><span>'+hm.symbol+'</span><small>TU CASA</small><b>'+esc(mine?.nombre||"Asignación pendiente")+'</b></div></section><section class="section"><div class="section-head"><div><p class="eyebrow">LAS CINCO CASAS</p><h2>El tablero de NOVA</h2></div><span class="live">● EN TIEMPO REAL</span></div><div class="house-chart"><div class="chart-axis"><span>PTS</span><i></i></div><div class="chart-bars">'+(list.map((h,i)=>{const m=houseMeta[h.nombre]||{symbol:"✦",color:"#aaa"};return '<article class="house '+(h.id===member.casa_id?"mine":"")+'" style="--house:'+m.color+'"><small>#'+(i+1)+'</small><span class="house-symbol">'+m.symbol+'</span><h3>'+esc(h.nombre)+'</h3><strong>'+Number(h.puntos||0)+' <em>PTS</em></strong></article>'}).join("")||empty("Las casas todavía no están disponibles."))+'</div></div></section>';
+ const max=Math.max(...list.map(h=>Number(h.puntos||0)),1);
+ document.querySelector("#page").innerHTML=
+ '<section class="home-hero">'+
+   '<div class="home-hero-copy"><p class="eyebrow">ESPACIO DEL INTEGRANTE</p><h1>Bienvenida, <strong>'+esc(firstName(member.nombre_completo))+'.</strong></h1><p>Este es tu centro personal dentro de NOVA.</p></div>'+
+   '<div class="my-house home-house" style="--house:'+hm.color+'"><span>'+hm.symbol+'</span><div><small>TU CASA</small><b>'+esc(mine?.nombre||"Asignación pendiente")+'</b></div></div>'+
+ '</section>'+
+ '<section class="home-section"><div class="section-head home-section-head"><div><p class="eyebrow">RANKING ACTUAL</p><h2>Las cinco casas</h2></div><span class="live">● EN TIEMPO REAL</span></div>'+
+   '<div class="houses-grid">'+(list.map((h,i)=>{const m=houseMeta[h.nombre]||{symbol:"✦",color:"#aaa"};return '<article class="house-square '+(h.id===member.casa_id?"mine":"")+'" style="--house:'+m.color+'"><div class="house-top"><small>#'+(i+1)+'</small><span>'+m.symbol+'</span></div><div class="house-main"><h3>'+esc(h.nombre)+'</h3><strong>'+Number(h.puntos||0)+' <em>PTS</em></strong></div></article>'}).join("")||empty("Las casas todavía no están disponibles."))+'</div>'+
+ '</section>'+
+ '<section class="home-section chart-section"><div class="section-head"><div><p class="eyebrow">PUNTUACIÓN</p><h2>Distribución de puntos</h2></div></div>'+
+   '<div class="home-chart"><div class="chart-bars">'+(list.map(h=>{const m=houseMeta[h.nombre]||{symbol:"✦",color:"#aaa"};const pct=Math.max(8,Math.round(Number(h.puntos||0)/max*100));return '<div class="chart-house" style="--house:'+m.color+'"><strong class="bar-value">'+Number(h.puntos||0)+'</strong><div class="bar"><span style="--pct:'+pct+'%"></span></div><div class="chart-label"><b>'+m.symbol+'</b><strong>'+esc(h.nombre)+'</strong></div></div>'}).join(""))+'</div></div>'+
+ '</section>';
 });
 </script></body></html>
