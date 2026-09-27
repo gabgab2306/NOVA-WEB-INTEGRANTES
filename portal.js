@@ -35,7 +35,7 @@ function renderShell(active,title,kicker){
  '</header>'+
  '<main id="page" class="app-page"></main>'+
  '<nav class="bottom-nav" aria-label="Navegación">'+
- navItem("home","Inicio","⌂",active)+navItem("profile","Perfil","○",active)+navItem("areas","Áreas","✦",active)+navItem("activities","Actividades","◫",active)+navItem("community","Logros","◇",active)+
+ navItem("home","Inicio","⌂",active)+navItem("profile","Perfil","○",active)+navItem("areas","Áreas","✦",active)+navItem("activities","Agenda","◫",active)+navItem("community","Logros","◇",active)+
  '</nav></div>';
  $("#logout").onclick=async()=>{await db.auth.signOut({scope:"local"});window.location.replace("./index.html")};
 }
