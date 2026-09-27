@@ -33,7 +33,7 @@ function renderShell(active,title,kicker){
  '<div class="app-title"><small>'+esc(kicker)+'</small><strong>'+esc(title)+'</strong></div>'+
  '<div class="account"><div class="avatar">'+esc(initials(member.nombre_completo))+'</div><div class="account-copy"><strong>'+esc(member.nombre_completo)+'</strong><small>@'+esc(member.username||"member")+'</small></div><button id="logout" type="button" aria-label="Cerrar sesión">↗</button></div>'+
  '</header>'+
- '<main id="page" class="app-page"></main>'+
+ '<main id="page" class="app-page page-"+active></main>'+
  '<nav class="bottom-nav" aria-label="Navegación">'+
  navItem("home","Inicio","⌂",active)+navItem("profile","Perfil","○",active)+navItem("areas","Áreas","✦",active)+navItem("activities","Agenda","◫",active)+navItem("community","Logros","◇",active)+
  '</nav></div>';
