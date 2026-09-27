@@ -30,7 +30,7 @@
 </section>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const db=supabase.createClient("https://hogbjrbaeedlyglegjle.supabase.co","sb_publishable_NWG23rPztabdaFhEyNtN5w_rrCeMTC5",{auth:{persistSession:true,autoRefreshToken:false,storage:window.sessionStorage}});
+const db=supabase.createClient("https://hogbjrbaeedlyglegjle.supabase.co","sb_publishable_NWG23rPztabdaFhEyNtN5w_rrCeMTC5",{auth:{persistSession:true,autoRefreshToken:true,storage:window.localStorage}});
 const m=document.querySelector("#authMessage"),form=document.querySelector("#loginForm");
 form.onsubmit=async e=>{
  e.preventDefault();m.textContent="Verificando acceso…";
