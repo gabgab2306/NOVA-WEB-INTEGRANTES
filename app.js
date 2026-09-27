@@ -1,4 +1,4 @@
-const SUPABASE_URL="https://hogbjrbaeedlyglegjle.supabase.co";const SUPABASE_KEY="sb_publishable_NWG23rPztabdaFhEyNtN5w_rrCeMTC5";const {createClient}=window.supabase;const db=createClient(SUPABASE_URL,SUPABASE_KEY);
+const SUPABASE_URL="https://hogbjrbaeedlyglegjle.supabase.co";const SUPABASE_KEY="sb_publishable_NWG23rPztabdaFhEyNtN5w_rrCeMTC5";const {createClient}=window.supabase;const db=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
 const $=s=>document.querySelector(s);const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
 const houseMeta={Pegaso:{e:"🪽",c:"#e7dfc6",g:"rgba(231,223,198,.45)"},Cronos:{e:"⏳",c:"#4aaeff",g:"rgba(74,174,255,.45)"},Fénix:{e:"🔥",c:"#e0b54f",g:"rgba(224,181,79,.45)"},Argos:{e:"👁️",c:"#5fd69a",g:"rgba(95,214,154,.45)"},Olimpo:{e:"⚡",c:"#e46e78",g:"rgba(228,110,120,.45)"}};
 let current=null,member=null,directivaMode=false;
