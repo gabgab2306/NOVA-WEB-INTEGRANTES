@@ -159,3 +159,66 @@
  .profile-card p{max-width:100%}
  .profile-card .profile-note p{overflow-wrap:anywhere}
 }
+
+
+/* NOVA PORTAL: viewport fijo + desplazamiento interno elegante */
+html,body{height:100%;overflow:hidden}
+.app-shell{height:100dvh;min-height:100dvh;overflow:hidden}
+.app-page{height:calc(100dvh - 140px);overflow:hidden;overscroll-behavior:contain}
+
+/* El contenido no hace crecer el portal: cada módulo se mueve dentro de su espacio */
+.profile-sections{height:calc(100% - 95px);min-height:0}
+.profile-card{height:100%;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:none;-ms-overflow-style:none}
+.profile-card::-webkit-scrollbar{display:none;width:0;height:0}
+.panel{scrollbar-width:none;-ms-overflow-style:none}
+.panel::-webkit-scrollbar{display:none;width:0;height:0}
+.data-list,.compact-list{min-width:0}
+.data-list b,.profile-note p,.compact-list b,.compact-list small,.assignment b,.assignment small{overflow-wrap:anywhere;word-break:break-word}
+
+/* Mantiene el portal tipo app, sin barras de scroll visibles */
+@media(min-width:761px){
+  .app-page{padding-bottom:12px}
+  .profile-card{padding:20px}
+  .profile-sections{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:12px}
+}
+
+/* Teléfono: la pantalla sigue fija, pero cada cuadro puede bajarse por dentro */
+@media(max-width:760px){
+  html,body{height:100%;overflow:hidden}
+  .app-shell{height:100dvh;overflow:hidden}
+  .app-page{
+    height:calc(100dvh - 132px);
+    overflow:hidden;
+    padding:12px 10px 18px;
+  }
+  .page-intro{height:auto;min-height:78px;flex:none;padding-bottom:12px}
+  .profile-sections{
+    height:calc(100% - 78px)!important;
+    min-height:0!important;
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    grid-template-rows:repeat(4,minmax(0,1fr))!important;
+    gap:9px!important;
+  }
+  .profile-card{
+    height:100%!important;
+    min-height:0!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    padding:14px!important;
+    -webkit-overflow-scrolling:touch;
+  }
+  .profile-card .data-list{grid-template-columns:1fr!important}
+  .profile-card .big-avatar{flex:none}
+  .profile-card .profile-note p,
+  .profile-card .assignment small,
+  .profile-card .assignment b,
+  .profile-card .compact-list small,
+  .profile-card .compact-list b{overflow-wrap:anywhere;word-break:break-word}
+}
+
+/* En pantallas muy pequeñas, los cuatro módulos siguen teniendo su propio espacio */
+@media(max-width:390px){
+  .profile-sections{grid-template-rows:repeat(4,minmax(0,1fr))!important;gap:7px!important}
+  .profile-card{padding:12px!important}
+}
