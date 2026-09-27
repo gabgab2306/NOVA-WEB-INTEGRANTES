@@ -238,3 +238,73 @@ html,body{height:100%;overflow:hidden}
   .page-home .section{flex:none}
   .page-home .upcoming{flex:none}
 }
+
+
+/* HOME FIX FINAL: el Inicio completo se desplaza dentro del viewport fijo */
+.page-home{
+  height:calc(100dvh - 140px)!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+  display:block!important;
+}
+.page-home::-webkit-scrollbar{display:none;width:0;height:0}
+.page-home .welcome{
+  height:auto!important;
+  min-height:210px;
+  flex:none;
+}
+.page-home .section{
+  height:auto!important;
+  min-height:0;
+  padding-top:22px;
+  flex:none;
+}
+.page-home .houses{
+  height:auto!important;
+  min-height:0;
+  align-items:stretch;
+}
+.page-home .house{
+  min-height:250px;
+}
+.page-home .house-chart{
+  height:auto!important;
+  min-height:330px;
+}
+.page-home .upcoming{
+  height:auto!important;
+  min-height:95px;
+  margin:18px 0 24px;
+  flex:none;
+}
+@media(max-width:760px){
+  .page-home{
+    height:calc(100dvh - 132px)!important;
+    padding:12px 10px 30px!important;
+  }
+  .page-home .welcome{
+    min-height:205px;
+  }
+  .page-home .section{
+    padding-top:16px;
+  }
+  .page-home .house-chart{
+    min-height:300px;
+    height:auto!important;
+  }
+  .page-home .houses{
+    min-height:0;
+  }
+  .page-home .house{
+    min-height:190px;
+  }
+  .page-home .upcoming{
+    display:flex!important;
+    min-height:90px;
+    margin:12px 0 22px;
+  }
+}
