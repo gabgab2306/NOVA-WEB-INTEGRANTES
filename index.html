@@ -1,1 +1,49 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NOVA · Integrantes</title><link rel="stylesheet" href="./styles.css"></head><body><div class="ambient ambient-a"></div><div class="ambient ambient-b"></div><section class="auth-view"><div class="brand-mark"><span>N</span><i>O</i><b>V</b><em>A</em></div><p class="kicker">LEADERSHIP CLUB · INTEGRANTES</p><h1>Tu lugar dentro de<br><strong>NOVA</strong></h1><p class="lead">Entra a tu espacio personal, descubre tu casa, tus áreas y todo lo que vas construyendo dentro del club.</p><div class="auth-card"><div class="auth-tabs"><button class="auth-tab active">Iniciar sesión</button><a class="admin-entry" href="./admin.html">🔐 Directiva</a></div><form id="loginForm"><label>Correo<input id="email" type="email" required autocomplete="username" placeholder="tu.correo@email.com"></label><label>Contraseña<input id="password" type="password" required autocomplete="current-password" placeholder="Tu contraseña"></label><button class="primary-btn">Entrar a NOVA <span>→</span></button></form><button id="resetBtn" class="text-btn">¿Olvidaste tu contraseña?</button><p id="authMessage" class="auth-message"></p></div><p class="footer-note">NOVA · Espacio privado de integrantes.</p></section><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>const db=supabase.createClient("https://hogbjrbaeedlyglegjle.supabase.co","sb_publishable_NWG23rPztabdaFhEyNtN5w_rrCeMTC5",{auth:{persistSession:false,autoRefreshToken:false}}),m=document.querySelector("#authMessage");document.querySelector("#loginForm").onsubmit=async e=>{e.preventDefault();m.textContent="Verificando acceso…";const r=await db.auth.signInWithPassword({email:email.value.trim(),password:password.value});if(r.error){m.textContent="Correo o contraseña incorrectos.";return}const u=(await db.auth.getUser()).data.user,q=await db.from("integrantes").select("id").eq("user_id",u.id).maybeSingle();if(!q.data){await db.auth.signOut();m.textContent="Tu cuenta todavía no está vinculada a un integrante aprobado.";return}location.replace("./home.html")};resetBtn.onclick=async()=>{if(!email.value.trim()){m.textContent="Escribe tu correo primero.";return}const r=await db.auth.resetPasswordForEmail(email.value.trim(),{redirectTo:location.origin});m.textContent=r.error?"No pudimos enviar el enlace.":"Revisa tu correo para restablecer la contraseña."}</script></body></html>
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NOVA · Integrantes</title><link rel="stylesheet" href="./styles.css"></head>
+<body>
+<div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
+<section class="auth-view">
+  <div>
+    <div class="brand-mark"><span>N</span><i>O</i><b>V</b><em>A</em></div>
+    <p class="kicker">LEADERSHIP CLUB · INTEGRANTES</p>
+    <h1>Tu lugar dentro de<br><strong>NOVA</strong></h1>
+    <p class="lead">Entra a tu espacio personal, descubre tu casa, tus áreas y todo lo que vas construyendo dentro del club.</p>
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" type="button">Iniciar sesión</button>
+        <a class="admin-entry" href="./admin.html"><span>◈</span> Acceso Directiva <b>→</b></a>
+      </div>
+      <form id="loginForm">
+        <label>Correo<input id="email" type="email" required autocomplete="username" placeholder="tu.correo@email.com"></label>
+        <label>Contraseña<input id="password" type="password" required autocomplete="current-password" placeholder="Tu contraseña"></label>
+        <button class="primary-btn" type="submit">Entrar a NOVA <span>→</span></button>
+      </form>
+      <div class="auth-links">
+        <a class="create-account-btn" href="./signup.html"><span>＋</span> Crear cuenta</a>
+        <button id="resetBtn" class="text-btn" type="button">¿Olvidaste tu contraseña?</button>
+      </div>
+      <p id="authMessage" class="auth-message"></p>
+    </div>
+    <p class="footer-note">NOVA · Espacio privado de integrantes.</p>
+  </div>
+</section>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const db=supabase.createClient("https://hogbjrbaeedlyglegjle.supabase.co","sb_publishable_NWG23rPztabdaFhEyNtN5w_rrCeMTC5",{auth:{persistSession:true,autoRefreshToken:false,storage:window.sessionStorage}});
+const m=document.querySelector("#authMessage"),form=document.querySelector("#loginForm");
+form.onsubmit=async e=>{
+ e.preventDefault();m.textContent="Verificando acceso…";
+ const r=await db.auth.signInWithPassword({email:email.value.trim(),password:password.value});
+ if(r.error){m.textContent="Correo o contraseña incorrectos.";return}
+ const u=r.data.user,q=await db.from("integrantes").select("id").eq("user_id",u.id).maybeSingle();
+ if(!q.data){await db.auth.signOut();m.textContent="Tu cuenta todavía no está vinculada a un integrante aprobado.";return}
+ location.replace("./home.html");
+};
+resetBtn.onclick=async()=>{
+ if(!email.value.trim()){m.textContent="Escribe tu correo primero.";return}
+ const r=await db.auth.resetPasswordForEmail(email.value.trim(),{redirectTo:location.origin});
+ m.textContent=r.error?"No pudimos enviar el enlace.":"Revisa tu correo para restablecer la contraseña.";
+};
+</script>
+</body></html>
