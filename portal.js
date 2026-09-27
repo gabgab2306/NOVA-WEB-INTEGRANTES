@@ -1,4 +1,4 @@
-const URL="https://hogbjrbaeedlyglegjle.supabase.co",KEY="sb_publishable_NWG23rPztabdaFhEyNtN5w_rrCeMTC5",db=supabase.createClient(URL,KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+const URL="https://hogbjrbaeedlyglegjle.supabase.co",KEY="sb_publishable_NWG23rPztabdaFhEyNtN5w_rrCeMTC5",db=supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:false,storage:window.sessionStorage}});
 const $=s=>document.querySelector(s), esc=s=>String(s||"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
 const meta={Pegaso:["🪽","#e7dfc6"],Cronos:["⏳","#4aaeff"],Fénix:["🔥","#e0b54f"],Argos:["👁️","#5fd69a"],Olimpo:["⚡","#e46e78"]};
 let member=null;
