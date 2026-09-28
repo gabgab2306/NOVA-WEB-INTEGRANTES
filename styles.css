@@ -308,3 +308,14 @@ html,body{height:100%;overflow:hidden}
     margin:12px 0 22px;
   }
 }
+
+
+/* HOME: gráfico de casas desplazable en móvil, sin cortes */
+@media(max-width:760px){
+  .page-home .house-chart{overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-left:12px;padding-right:12px}
+  .page-home .house-chart::-webkit-scrollbar{display:none;width:0;height:0}
+  .page-home .chart-bars{flex:0 0 560px!important;width:560px;min-width:560px;gap:12px!important;justify-content:space-between!important}
+  .page-home .chart-house{flex:0 0 92px!important;width:92px;min-width:92px}
+  .page-home .bar{width:48px;max-width:48px}
+  .page-home .chart-label b{font-size:12px}.page-home .chart-label strong{font-size:10px}.page-home .chart-label small{font-size:7px}.page-home .bar-value{font-size:10px}
+}
