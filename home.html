@@ -6,18 +6,21 @@ boot("home","Inicio","PORTAL DEL INTEGRANTE",async()=>{
  <section class="section"><div class="section-head"><div><p class="eyebrow">LAS CINCO CASAS</p><h2>El tablero de NOVA</h2></div><span class="live">● EN TIEMPO REAL</span></div><div class="house-chart"><div class="chart-axis"><span>PTS</span><i></i></div><div class="chart-bars" id="houseBoard"></div></div></section>
  <section class="point-feed-section"><div class="section-head"><div><p class="eyebrow">MOVIMIENTOS RECIENTES</p><h2>La historia de los puntos.</h2></div><span class="live">✦ ACTUALIZADO EN VIVO</span></div><div id="pointActivity" class="point-activity-list"><div class="point-empty">Cargando movimientos…</div></div></section>';
  async function refreshHouses(){
-  const {data,error}=await db.from("casas").select("*").order("puntos",{ascending:false});if(error)return;
+  portalStatus("Consultando las cinco casas…");
+  const {data,error}=await db.from("casas").select("*").order("puntos",{ascending:false});if(error){console.error("NOVA casas:",error);throw new Error("No se pudieron consultar las casas: "+error.message)}
   const list=data||[],mine=list.find(h=>h.id===member.casa_id),hm=houseMeta[mine?.nombre]||{symbol:"✦",color:"#d7ae52"};
   const badge=document.querySelector("#homeMyHouse");badge.style.setProperty("--house",hm.color);badge.innerHTML='<span>'+hm.symbol+'</span><small>TU CASA ASIGNADA</small><b>'+esc(mine?.nombre||"Asignación pendiente")+'</b><em>Tu casa la define Directiva</em>';
   document.querySelector("#houseBoard").innerHTML=list.map((h,i)=>{const m=houseMeta[h.nombre]||{symbol:"✦",color:"#aaa"};return '<article class="house '+(h.id===member.casa_id?"mine":"")+'" style="--house:'+m.color+'"><small>#'+(i+1)+'</small><span class="house-symbol">'+m.symbol+'</span><h3>'+esc(h.nombre)+'</h3><strong>'+Number(h.puntos||0)+' <em>PTS</em></strong>'+(h.id===member.casa_id?'<small class="mine-label">TU CASA</small>':'')+'</article>'}).join("")||'<div class="point-empty">Las casas todavía no están disponibles.</div>';
  }
  async function refreshMovements(){
+  portalStatus("Consultando movimientos de puntos…");
   const {data,error}=await db.from("movimientos_puntos").select("id,casa_id,cantidad,fecha,nombre_directiva").order("fecha",{ascending:false}).limit(10);
   const list=document.querySelector("#pointActivity");if(error){list.innerHTML='<div class="point-empty">No pudimos cargar los movimientos.</div>';return}
   const {data:houses}=await db.from("casas").select("id,nombre");const names=new Map((houses||[]).map(h=>[h.id,h.nombre]));
   list.innerHTML=(data||[]).length?(data||[]).map(m=>{const hname=names.get(m.casa_id)||"Casa NOVA",meta=houseMeta[hname]||{symbol:"✦",color:"#d7ae52"};return '<article class="point-movement" style="--house:'+meta.color+'"><div class="movement-emblem">'+meta.symbol+'</div><div class="movement-copy"><b>'+esc(hname)+'</b><small>'+esc(m.nombre_directiva||"Directiva NOVA")+' · '+(m.fecha?new Date(m.fecha).toLocaleString("es-DO",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}):"Fecha no disponible")+'</small></div><strong class="'+(Number(m.cantidad)>=0?"positive":"negative")+'">'+(Number(m.cantidad)>0?"+":"")+Number(m.cantidad)+' <small>PTS</small></strong></article>'}).join(""):'<div class="point-empty">Todavía no hay movimientos registrados. Cada punto que sume Directiva aparecerá aquí.</div>';
  }
  await Promise.all([refreshHouses(),refreshMovements()]);
+ portalStatus("Inicio cargado correctamente.");
  db.channel("nova-house-live").on("postgres_changes",{event:"*",schema:"public",table:"casas"},()=>refreshHouses()).on("postgres_changes",{event:"*",schema:"public",table:"movimientos_puntos"},()=>{refreshMovements();refreshHouses()}).subscribe();
 });
 </script></body></html>
