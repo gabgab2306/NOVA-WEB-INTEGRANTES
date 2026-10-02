@@ -15,20 +15,24 @@ const houseMeta={
 let member=null, socialProfile=null;
 
 async function getMember(){
- const {data:{user},error}=await db.auth.getUser();
- if(error||!user) return null;
- const {data,error:e}=await db.from("integrantes").select("*").eq("user_id",user.id).maybeSingle();
- if(e||!data||data.activo===false) return null;
- return data;
+ try{
+  const {data:{user},error}=await db.auth.getUser();
+  if(error||!user) return null;
+  const {data,error:e}=await db.from("integrantes").select("*").eq("user_id",user.id).maybeSingle();
+  if(e||!data||data.activo===false) return null;
+  return data;
+ }catch(e){console.error("NOVA getMember:",e);return null}
 }
 async function requireMember(){
  member=await getMember();
  if(!member){await db.auth.signOut({scope:"local"});window.location.replace("./index.html");return false}
- const profileSeed={integrante_id:member.id,user_id:member.user_id,nombre_visible:member.nombre_completo,username:member.username||"nova"};
- const {error:profileError}=await db.from("integrante_perfiles").upsert(profileSeed,{onConflict:"integrante_id",ignoreDuplicates:true});
- if(profileError) console.warn("No se pudo inicializar el perfil social:",profileError.message);
- const {data:profileData}=await db.from("integrante_perfiles").select("*").eq("integrante_id",member.id).maybeSingle();
- socialProfile=profileData||null;
+ // El perfil social es complementario. Nunca debe impedir que cargue el portal principal.
+ try{
+  const profileSeed={integrante_id:member.id,user_id:member.user_id,nombre_visible:member.nombre_completo,username:member.username||"nova"};
+  const {data:profileData,error:profileError}=await db.from("integrante_perfiles").upsert(profileSeed,{onConflict:"integrante_id",ignoreDuplicates:true}).select("*").maybeSingle();
+  if(profileError) console.warn("Perfil social omitido:",profileError.message);
+  socialProfile=profileData||null;
+ }catch(e){console.warn("Perfil social omitido:",e)}
  return true;
 }
 function renderShell(active,title,kicker){
@@ -45,6 +49,14 @@ function renderShell(active,title,kicker){
  $("#logout").onclick=async()=>{await db.auth.signOut({scope:"local"});window.location.replace("./index.html")};
 }
 function navItem(page,label,icon,active){return '<a href="./'+page+'.html" class="'+(page===active?"active":"")+'"><span>'+icon+'</span><small>'+label+'</small></a>'}
-async function boot(active,title,kicker,render){if(await requireMember()){renderShell(active,title,kicker);try{await render()}catch(e){console.error(e);$("#page").innerHTML='<section class="error-panel"><p class="eyebrow">NOVA · AVISO</p><h1>No pudimos cargar esta sección.</h1><p>Tu acceso sigue protegido. Recarga la página o vuelve al Inicio.</p><a class="button secondary" href="./home.html">Volver al Inicio</a></section>'}}}
+async function boot(active,title,kicker,render){
+ try{
+  if(await requireMember()){renderShell(active,title,kicker);await render()}
+ }catch(e){
+  console.error("NOVA portal:",e);
+  const page=$("#page");
+  if(page) page.innerHTML='<section class="error-panel"><p class="eyebrow">NOVA · AVISO</p><h1>No pudimos cargar esta sección.</h1><p>Hubo un problema al consultar tus datos. Tu acceso sigue protegido.</p><button class="button secondary" onclick="location.reload()">Reintentar</button></section>';
+ }
+}
 function empty(text){return '<div class="empty"><span>✦</span><p>'+esc(text)+'</p></div>'}
 function dateText(v){if(!v)return "Fecha por anunciar";const d=new Date(v);return Number.isNaN(d.getTime())?String(v):d.toLocaleDateString("es-DO",{day:"2-digit",month:"short",year:"numeric"})}
