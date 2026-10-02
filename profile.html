@@ -1,27 +1,90 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NOVA · Perfil</title><link rel="stylesheet" href="./styles.css"></head><body><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="./portal.js"></script><script>
-boot("profile","Perfil","MI ESPACIO",async()=>{
- const [areasR,munR,debateR,staffR,houseR]=await Promise.all([
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NOVA · Mi perfil</title><link rel="stylesheet" href="./styles.css"></head>
+<body><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="./portal.js"></script>
+<script>
+boot("profile","Mi perfil","TU ESPACIO",async()=>{
+ const [profileR,houseR,areasR,munR,debateR,staffR,evaluationsR]=await Promise.all([
+  db.from("integrante_perfiles").select("*").eq("integrante_id",member.id).maybeSingle(),
+  db.from("casas").select("*").eq("id",member.casa_id).maybeSingle(),
   db.from("integrante_areas").select("*").eq("integrante_id",member.id).order("area"),
   db.from("mun_asignaciones").select("*").eq("integrante_id",member.id).maybeSingle(),
   db.from("debate_tripletas").select("*").eq("integrante_id",member.id).maybeSingle(),
   db.from("staff_asignaciones").select("*").eq("integrante_id",member.id).maybeSingle(),
-  db.from("casas").select("*").eq("id",member.casa_id).maybeSingle()
+  db.from("evaluaciones").select("*, actividades(nombre)").eq("integrante_id",member.id).order("fecha_evaluacion",{ascending:false})
  ]);
- const areas=areasR.data||[],mun=munR.data,debate=debateR.data,staff=staffR.data,house=houseR.data;
+ let social=profileR.data||{integrante_id:member.id,user_id:member.user_id,nombre_visible:member.nombre_completo,username:member.username||"nova",frase:"",estado:"Disponible",avatar_url:null};
+ const house=houseR.data,areas=areasR.data||[],mun=munR.data,debate=debateR.data,staff=staffR.data,evaluations=evaluationsR.data||[];
+ const hmeta=houseMeta[house?.nombre]||{symbol:"✦",color:"#d7ae52"};
  const interests=Array.isArray(member.intereses)?member.intereses:[];
+ const avatarMarkup=()=>social.avatar_url?'<img src="'+esc(social.avatar_url)+'" alt="Foto de perfil">':esc(initials(social.nombre_visible||member.nombre_completo));
  document.querySelector("#page").innerHTML=`
- <section class="page-intro"><p class="eyebrow">MI PERFIL</p><h1>${esc(member.nombre_completo)}</h1><p>@${esc(member.username||"member")} · ${esc(member.curso||"")} ${esc(member.seccion||"")}</p></section>
- <div class="profile-sections">
-  <article class="panel profile-card"><div class="big-avatar">${esc(initials(member.nombre_completo))}</div><p class="eyebrow">INFORMACIÓN PERSONAL</p><h2>${esc(member.nombre_completo)}</h2><p class="muted">${esc(member.email||"")}</p><div class="data-list">
-   <div><small>Teléfono</small><b>${esc(member.telefono||"No registrado")}</b></div><div><small>Curso / sección</small><b>${esc(member.curso||"")} · ${esc(member.seccion||"")}</b></div><div><small>Casa</small><b>${esc(house?.nombre||"Asignación pendiente")}</b></div><div><small>Experiencia</small><b>${member.experiencia?"Sí":"No"}</b></div>
-  </div></article>
-  <article class="panel profile-card"><p class="eyebrow">INTERESES</p><h2>Lo que te mueve.</h2><div class="tag-list">${interests.map(x=>`<span>${esc(x)}</span>`).join("")||"<small class='muted'>Sin intereses registrados.</small>"}</div><div class="profile-note"><small>MOTIVACIÓN</small><p>${esc(member.motivacion||"Aún no registrada.")}</p></div><div class="profile-note"><small>EXPERIENCIA PREVIA</small><p>${esc(member.detalle_experiencia||"Sin detalle registrado.")}</p></div></article>
-  <article class="panel profile-card"><p class="eyebrow">ÁREAS ASIGNADAS</p><h2>Tu participación.</h2><div class="compact-list">${areas.map(a=>`<div><span>✦</span><b>${esc(a.area)}</b><small>${esc(a.detalle||"Asignación activa")}</small></div>`).join("")||"<div class='empty'>No hay áreas asignadas todavía.</div>"}</div></article>
-  <article class="panel profile-card"><p class="eyebrow">ASIGNACIONES ESPECIALES</p><h2>Tu rol dentro de NOVA.</h2>
-   <div class="assignment"><span>MUN / ONU</span><b>${esc(mun?.pais||"Sin país asignado")}</b><small>${esc(mun?.comision||"")} ${mun?.delegacion?"· "+esc(mun.delegacion):""}</small></div>
-   <div class="assignment"><span>DEBATE</span><b>${esc(debate?.nombre_tripleta||"Sin tripleta asignada")}</b><small>${esc(Array.isArray(debate?.companeros)?debate.companeros.join(" · "):"")}</small></div>
-   <div class="assignment"><span>STAFF</span><b>${esc(staff?.rol||"Sin rol asignado")}</b><small>${esc(staff?.area_staff||"")}</small></div>
-  </article>
- </div>`;
+  <section class="social-profile-hero">
+   <div class="social-profile-aura"></div>
+   <div class="social-identity">
+    <div class="social-avatar" id="socialAvatar">${avatarMarkup()}</div>
+    <div class="social-name-block"><p class="eyebrow">TU IDENTIDAD EN NOVA</p><h1>${esc(social.nombre_visible||member.nombre_completo)}</h1><p class="social-handle">@${esc(social.username||member.username||"nova")} · ${esc(member.curso||"")} ${esc(member.seccion||"")}</p><div class="social-status"><i></i><span id="statusPreview">${esc(social.estado||"Disponible")}</span></div><p class="social-quote" id="quotePreview">${esc(social.frase||"Escribe una frase que te represente.")}</p></div>
+   </div>
+   <div class="social-house-badge" style="--house:${hmeta.color}"><span>${hmeta.symbol}</span><small>CASA ASIGNADA</small><b>${esc(house?.nombre||"Pendiente")}</b><em>Tu casa se gestiona desde Directiva</em></div>
+  </section>
+  <section class="profile-customizer panel">
+   <div class="profile-customizer-title"><div><p class="eyebrow">PERSONALIZACIÓN</p><h2>Hazlo tuyo.</h2></div><span class="live">✦ PERFIL PRIVADO</span></div>
+   <form id="socialForm" class="social-edit-grid">
+    <label>Tu estado <input id="socialStatus" maxlength="40" value="${esc(social.estado||"Disponible")}" placeholder="Ocupado, disponible…"></label>
+    <label class="quote-field">Tu frase <textarea id="socialQuote" maxlength="180" rows="2" placeholder="Un pensamiento, una frase o un versículo…">${esc(social.frase||"")}</textarea></label>
+    <div class="profile-edit-actions"><label class="upload-label" for="avatarFile">◎ Cambiar foto de perfil</label><input id="avatarFile" class="visually-hidden-file" type="file" accept="image/png,image/jpeg,image/webp"><button class="button primary" type="submit">Guardar cambios <span>✦</span></button></div>
+   </form><p id="profileMessage" class="form-message"></p>
+  </section>
+  <div class="profile-tabs" role="tablist" aria-label="Secciones del perfil">
+   <button class="profile-tab active" data-tab="personal">Información personal <span>01</span></button>
+   <button class="profile-tab" data-tab="achievements">Logros <span>02</span></button>
+   <button class="profile-tab" data-tab="roles">Roles <span>03</span></button>
+  </div>
+  <section class="profile-tab-panel active" id="tab-personal">
+   <article class="panel profile-info-card"><p class="eyebrow">IDENTIDAD</p><h2>Tu información.</h2><div class="profile-info-grid">
+    <div><small>NOMBRE COMPLETO</small><b>${esc(member.nombre_completo)}</b></div><div><small>USUARIO</small><b>@${esc(social.username||member.username||"nova")}</b></div>
+    <div><small>CORREO</small><b>${esc(member.email||"No registrado")}</b></div><div><small>TELÉFONO</small><b>${esc(member.telefono||"No registrado")}</b></div>
+    <div><small>CURSO / SECCIÓN</small><b>${esc(member.curso||"")} · ${esc(member.seccion||"")}</b></div><div><small>CASA</small><b style="color:${hmeta.color}">${esc(house?.nombre||"Asignación pendiente")}</b></div>
+   </div></article>
+   <article class="panel profile-info-card"><p class="eyebrow">LO QUE TE MUEVE</p><h2>Intereses y motivación.</h2><div class="social-tags">${interests.map(x=>'<span>'+esc(x)+'</span>').join("")||'<span>Sin intereses registrados</span>'}</div><div class="profile-long-note"><small>MOTIVACIÓN DE INGRESO</small><p>${esc(member.motivacion||"Aún no registrada.")}</p></div><div class="profile-long-note"><small>EXPERIENCIA PREVIA</small><p>${esc(member.detalle_experiencia||"Sin detalle registrado.")}</p></div></article>
+  </section>
+  <section class="profile-tab-panel" id="tab-achievements" hidden>
+   <article class="panel profile-info-card"><p class="eyebrow">TRAYECTORIA NOVA</p><h2>Tu camino dentro del club.</h2><div class="timeline-card"><span>✦</span><div><b>Integrante aprobado</b><small>${member.fecha_aprobacion?dateText(member.fecha_aprobacion):"Miembro de NOVA"}</small></div></div>
+   ${areas.map(a=>'<div class="timeline-card"><span>◇</span><div><b>'+esc(a.area)+'</b><small>'+esc(a.detalle||"Área asignada dentro de NOVA")+'</small></div></div>').join("")}
+   ${evaluations.length?evaluations.map(x=>'<div class="timeline-card"><span>✧</span><div><b>'+esc(x.actividades?.nombre||"Evaluación NOVA")+'</b><small>'+esc(x.feedback||"Evaluación registrada")+' · '+(x.total!=null?esc(x.total)+(x.maximo!=null?"/"+esc(x.maximo):" puntos"):"Feedback")+'</small></div></div>').join(""):'<div class="profile-long-note"><small>FEEDBACK</small><p>Aún no tienes evaluaciones publicadas. Cuando Directiva registre una, aparecerá aquí.</p></div>'}
+   </article>
+  </section>
+  <section class="profile-tab-panel" id="tab-roles" hidden>
+   <article class="panel profile-info-card"><p class="eyebrow">TU PARTICIPACIÓN</p><h2>Áreas y asignaciones.</h2><div class="role-card-grid">
+    ${areas.map(a=>'<div class="role-card"><span>✦</span><small>ÁREA ACTIVA</small><b>'+esc(a.area)+'</b><p>'+esc(a.detalle||"Integrante del área")+'</p></div>').join("")||'<div class="profile-long-note"><p>No tienes áreas asignadas todavía.</p></div>'}
+    <div class="role-card"><span>◎</span><small>MUN / ONU</small><b>${esc(mun?.pais||"Sin país asignado")}</b><p>${esc(mun?.comision||"Comisión pendiente")}${mun?.delegacion?" · "+esc(mun.delegacion):""}</p></div>
+    <div class="role-card"><span>◇</span><small>DEBATE</small><b>${esc(debate?.nombre_tripleta||"Sin tripleta asignada")}</b><p>${esc(Array.isArray(debate?.companeros)?debate.companeros.join(" · "):"Compañeros pendientes")}</p></div>
+    <div class="role-card"><span>ϟ</span><small>STAFF</small><b>${esc(staff?.rol||"Sin rol asignado")}</b><p>${esc(staff?.area_staff||"Rol pendiente")}</p></div>
+   </div></article>
+  </section>`;
+ document.querySelectorAll(".profile-tab").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".profile-tab").forEach(b=>b.classList.toggle("active",b===btn));document.querySelectorAll(".profile-tab-panel").forEach(p=>{p.hidden=p.id!=="tab-"+btn.dataset.tab;p.classList.toggle("active",!p.hidden)})}));
+ const form=document.querySelector("#socialForm"),msg=document.querySelector("#profileMessage"),fileInput=document.querySelector("#avatarFile");
+ form.addEventListener("submit",async e=>{
+  e.preventDefault();msg.textContent="Guardando tu perfil…";
+  const patch={frase:document.querySelector("#socialQuote").value.trim(),estado:document.querySelector("#socialStatus").value.trim()||"Disponible",actualizado_en:new Date().toISOString()};
+  const {error}=await db.from("integrante_perfiles").update(patch).eq("integrante_id",member.id);
+  if(error){msg.textContent="No pudimos guardar los cambios. Inténtalo otra vez.";return}
+  social={...social,...patch};document.querySelector("#statusPreview").textContent=social.estado;document.querySelector("#quotePreview").textContent=social.frase||"Escribe una frase que te represente.";msg.textContent="Perfil actualizado. ✦";
+ });
+ fileInput.addEventListener("change",async()=>{
+  const file=fileInput.files?.[0];if(!file)return;
+  if(!["image/jpeg","image/png","image/webp"].includes(file.type)){msg.textContent="Usa una imagen JPG, PNG o WEBP.";fileInput.value="";return}
+  if(file.size>5*1024*1024){msg.textContent="La foto debe pesar menos de 5 MB.";fileInput.value="";return}
+  msg.textContent="Subiendo tu foto…";
+  const {data:{user}}=await db.auth.getUser();if(!user){msg.textContent="Vuelve a iniciar sesión.";return}
+  const ext=file.type==="image/png"?"png":file.type==="image/webp"?"webp":"jpg",path=user.id+"/avatar-"+Date.now()+"."+ext;
+  const {error:uploadError}=await db.storage.from("nova-avatars").upload(path,file,{cacheControl:"3600",upsert:false,contentType:file.type});
+  if(uploadError){msg.textContent="No pudimos subir la foto. Intenta otra vez.";return}
+  const {data:urlData}=db.storage.from("nova-avatars").getPublicUrl(path),avatar_url=urlData.publicUrl;
+  const {error:updateError}=await db.from("integrante_perfiles").update({avatar_url,actualizado_en:new Date().toISOString()}).eq("integrante_id",member.id);
+  if(updateError){msg.textContent="La foto subió, pero no pudimos guardar el perfil.";return}
+  social.avatar_url=avatar_url;document.querySelector("#socialAvatar").innerHTML='<img src="'+esc(avatar_url)+'" alt="Foto de perfil">';
+  const headerAvatar=document.querySelector(".account .avatar");if(headerAvatar)headerAvatar.innerHTML='<img src="'+esc(avatar_url)+'" alt="">';
+  msg.textContent="Foto de perfil actualizada. ✦";fileInput.value="";
+ });
 });
 </script></body></html>
