@@ -15,6 +15,7 @@ boot("community","Foro NOVA","COMUNIDAD EN VIVO",async()=>{
    <aside class="forum-side">
     <article class="panel forum-side-card"><p class="eyebrow">TU ESPACIO</p><div class="side-profile-avatar">${myAvatar}</div><h3>${esc(firstName(member.nombre_completo))}</h3><p>@${esc(member.username||"nova")}</p><a href="./profile.html" class="button secondary">Personalizar perfil →</a></article>
     <article class="panel forum-rules"><p class="eyebrow">ACUERDOS DE CONVIVENCIA</p><h3>Una comunidad con respeto.</h3><ul><li>Las ideas se discuten, las personas se respetan.</li><li>No publiques teléfonos, contraseñas ni datos privados.</li><li>Evita insultos, acoso y contenido que exponga a otros.</li><li>Si algo te preocupa, comunícalo a Directiva.</li></ul></article>
+    <article class="panel member-directory"><p class="eyebrow">GENTE NOVA</p><h3>Conoce a la comunidad.</h3><input id="memberSearch" type="search" placeholder="Buscar integrante…"><div id="memberDirectory" class="member-directory-list"></div></article>
     <article class="forum-side-quote"><span>✦</span><p>La palabra también construye comunidad.</p><small>NOVA LEADERSHIP CLUB</small></article>
    </aside>
   </div>`;
@@ -22,14 +23,22 @@ boot("community","Foro NOVA","COMUNIDAD EN VIVO",async()=>{
  postText.addEventListener("input",()=>charCount.textContent=postText.value.length);
  const avatar=(p)=>p?.avatar_url?'<img src="'+esc(p.avatar_url)+'" alt="">':esc(initials(p?.nombre_visible||"NOVA"));
  const timeAgo=(v)=>{const diff=Math.max(0,Date.now()-new Date(v).getTime()),m=Math.floor(diff/60000);if(m<1)return"Ahora mismo";if(m<60)return" Hace "+m+" min";const h=Math.floor(m/60);if(h<24)return"Hace "+h+" h";return dateText(v)};
+ function renderDirectory(){
+  const list=document.querySelector("#memberDirectory"),search=document.querySelector("#memberSearch");if(!list||!search)return;
+  const q=search.value.trim().toLowerCase(),items=directoryProfiles.filter(p=>[p.nombre_visible,p.username,p.estado,p.frase,houseNames.get(p.casa_id)||""].join(" ").toLowerCase().includes(q)).sort((a,b)=>(a.nombre_visible||"").localeCompare(b.nombre_visible||"","es"));
+  list.innerHTML=items.length?items.slice(0,100).map(p=>{const hn=houseNames.get(p.casa_id)||"Casa pendiente",hm=houseMeta[hn]||{symbol:"✦",color:"#d7ae52"};return '<div class="directory-person"><div class="directory-avatar">'+avatar(p)+'</div><div class="directory-person-copy"><b>'+esc(p.nombre_visible)+'</b><small>@'+esc(p.username||"nova")+' · '+esc(p.estado||"Disponible")+'</small>'+(p.frase?'<p>“'+esc(p.frase)+'”</p>':"")+'<span style="--house:'+hm.color+'">'+hm.symbol+' '+esc(hn)+'</span></div></div>'}).join(""):'<div class="directory-empty">No encontramos integrantes con ese nombre.</div>';
+ }
+ document.querySelector("#memberSearch").addEventListener("input",renderDirectory);
  async function loadForum(){
-  const [postsR,commentsR,profilesR]=await Promise.all([
+  const [postsR,commentsR,profilesR,housesR]=await Promise.all([
    db.from("community_posts").select("*").order("creado_en",{ascending:false}).limit(40),
    db.from("community_comments").select("*").order("creado_en",{ascending:true}).limit(300),
-   db.from("integrante_perfiles").select("integrante_id,nombre_visible,username,avatar_url,estado,frase")
+   db.from("integrante_perfiles").select("integrante_id,nombre_visible,username,avatar_url,estado,frase,casa_id"),
+   db.from("casas").select("id,nombre")
   ]);
   if(postsR.error||commentsR.error||profilesR.error){feed.innerHTML='<div class="panel forum-empty"><span>✦</span><h3>La plaza está descansando.</h3><p>No pudimos cargar las conversaciones. Intenta actualizar la página.</p></div>';return}
-  const profiles=new Map((profilesR.data||[]).map(p=>[p.integrante_id,p]));
+  directoryProfiles=profilesR.data||[];houseNames=new Map((housesR.data||[]).map(h=>[h.id,h.nombre]));renderDirectory();
+  const profiles=new Map(directoryProfiles.map(p=>[p.integrante_id,p]));
   const commentsByPost=new Map();
   (commentsR.data||[]).forEach(c=>{if(!commentsByPost.has(c.post_id))commentsByPost.set(c.post_id,[]);commentsByPost.get(c.post_id).push(c)});
   const posts=postsR.data||[];
