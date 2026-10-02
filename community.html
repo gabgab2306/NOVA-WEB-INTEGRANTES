@@ -53,6 +53,6 @@ boot("community","Foro NOVA","COMUNIDAD EN VIVO",async()=>{
  }
  document.querySelector("#postForm").addEventListener("submit",async e=>{e.preventDefault();const contenido=postText.value.trim();if(!contenido){forumMessage.textContent="Escribe algo antes de publicar.";return}forumMessage.textContent="Publicando…";const {error}=await db.from("community_posts").insert({author_integrante_id:member.id,contenido});if(error){forumMessage.textContent="No pudimos publicar. Inténtalo otra vez.";return}postText.value="";charCount.textContent="0";forumMessage.textContent="Publicado en la plaza NOVA. ✦";await loadForum()});
  await loadForum();
- db.channel("nova-forum-live").on("postgres_changes",{event:"*",schema:"public",table:"community_posts"},()=>loadForum()).on("postgres_changes",{event:"*",schema:"public",table:"community_comments"},()=>loadForum()).subscribe();
+ db.channel("nova-forum-live").on("postgres_changes",{event:"*",schema:"public",table:"community_posts"},()=>loadForum()).on("postgres_changes",{event:"*",schema:"public",table:"community_comments"},()=>loadForum()).on("postgres_changes",{event:"*",schema:"public",table:"integrante_perfiles"},()=>loadForum()).subscribe();
 });
 </script></body></html>
