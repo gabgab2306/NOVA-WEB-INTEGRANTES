@@ -13,7 +13,7 @@ const houseMeta={
  Olimpo:{symbol:"ϟ",color:"#e56d78"}
 };
 let member=null, socialProfile=null;
-function portalStatus(message){const el=document.querySelector("#portal-status");if(el) el.innerHTML="<span>●</span>"+esc(message);console.info("[NOVA]",message)}
+function portalStatus(message){const el=document.querySelector("#portal-status")||document.querySelector("#preload-status");if(el) el.innerHTML="<span>●</span>"+esc(message);console.info("[NOVA]",message)}
 function portalTimeout(promise,ms,label){return Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error(label+" tardó demasiado")),ms))])}
 
 async function getMember(){
