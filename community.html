@@ -3,16 +3,17 @@
 <script>
 boot("community","Foro NOVA","COMUNIDAD EN VIVO",async()=>{
  const page=document.querySelector("#page");
+ const myAvatar=socialProfile?.avatar_url?'<img src="'+esc(socialProfile.avatar_url)+'" alt="">':esc(initials(member.nombre_completo));
  page.innerHTML=`
   <section class="forum-hero"><div><p class="eyebrow">PLAZA NOVA · COMUNIDAD</p><h1>Ideas que nos <em>conectan.</em></h1><p>Comparte una opinión, recomienda algo, haz una pregunta o inicia una conversación con el club.</p></div><div class="forum-orbit"><span>◎</span><i></i><b></b></div></section>
   <div class="forum-layout">
    <section class="forum-main">
-    <form id="postForm" class="forum-composer panel"><div class="composer-heading"><div class="mini-avatar">${esc(initials(member.nombre_completo))}</div><div><b>¿Qué tienes en mente?</b><small>Publica para la comunidad NOVA</small></div></div><textarea id="postText" maxlength="700" rows="3" placeholder="Tu opinión, una idea para el club, una pregunta…"></textarea><div class="composer-footer"><small><span id="charCount">0</span>/700 · Respeta a los demás integrantes.</small><button class="button primary" type="submit">Publicar <span>↗</span></button></div><p id="forumMessage" class="form-message"></p></form>
+    <form id="postForm" class="forum-composer panel"><div class="composer-heading"><div class="mini-avatar">${myAvatar}</div><div><b>¿Qué tienes en mente?</b><small>Publica para la comunidad NOVA</small></div></div><textarea id="postText" maxlength="700" rows="3" placeholder="Tu opinión, una idea para el club, una pregunta…"></textarea><div class="composer-footer"><small><span id="charCount">0</span>/700 · Respeta a los demás integrantes.</small><button class="button primary" type="submit">Publicar <span>↗</span></button></div><p id="forumMessage" class="form-message"></p></form>
     <div class="forum-feed-heading"><div><p class="eyebrow">CONVERSACIONES</p><h2>Lo que está pasando.</h2></div><span class="live">● EN VIVO</span></div>
     <div id="forumFeed" class="forum-feed"><div class="forum-loading">Preparando la plaza de NOVA…</div></div>
    </section>
    <aside class="forum-side">
-    <article class="panel forum-side-card"><p class="eyebrow">TU ESPACIO</p><div class="side-profile-avatar">${esc(initials(member.nombre_completo))}</div><h3>${esc(firstName(member.nombre_completo))}</h3><p>@${esc(member.username||"nova")}</p><a href="./profile.html" class="button secondary">Personalizar perfil →</a></article>
+    <article class="panel forum-side-card"><p class="eyebrow">TU ESPACIO</p><div class="side-profile-avatar">${myAvatar}</div><h3>${esc(firstName(member.nombre_completo))}</h3><p>@${esc(member.username||"nova")}</p><a href="./profile.html" class="button secondary">Personalizar perfil →</a></article>
     <article class="panel forum-rules"><p class="eyebrow">ACUERDOS DE CONVIVENCIA</p><h3>Una comunidad con respeto.</h3><ul><li>Las ideas se discuten, las personas se respetan.</li><li>No publiques teléfonos, contraseñas ni datos privados.</li><li>Evita insultos, acoso y contenido que exponga a otros.</li><li>Si algo te preocupa, comunícalo a Directiva.</li></ul></article>
     <article class="forum-side-quote"><span>✦</span><p>La palabra también construye comunidad.</p><small>NOVA LEADERSHIP CLUB</small></article>
    </aside>
