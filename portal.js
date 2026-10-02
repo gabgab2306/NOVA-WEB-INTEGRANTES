@@ -24,6 +24,9 @@ async function getMember(){
 async function requireMember(){
  member=await getMember();
  if(!member){await db.auth.signOut({scope:"local"});window.location.replace("./index.html");return false}
+ const profileSeed={integrante_id:member.id,user_id:member.user_id,nombre_visible:member.nombre_completo,username:member.username||"nova"};
+ const {error:profileError}=await db.from("integrante_perfiles").upsert(profileSeed,{onConflict:"integrante_id",ignoreDuplicates:true});
+ if(profileError) console.warn("No se pudo inicializar el perfil social:",profileError.message);
  return true;
 }
 function renderShell(active,title,kicker){
@@ -35,7 +38,7 @@ function renderShell(active,title,kicker){
  '</header>'+
  '<main id="page" class="app-page page-"+active></main>'+
  '<nav class="bottom-nav" aria-label="Navegación">'+
- navItem("home","Inicio","⌂",active)+navItem("profile","Perfil","○",active)+navItem("areas","Áreas","✦",active)+navItem("activities","Agenda","◫",active)+navItem("community","Logros","◇",active)+
+ navItem("home","Inicio","⌂",active)+navItem("profile","Perfil","○",active)+navItem("areas","Áreas","✦",active)+navItem("activities","Agenda","◫",active)+navItem("community","Foro","◎",active)+
  '</nav></div>';
  $("#logout").onclick=async()=>{await db.auth.signOut({scope:"local"});window.location.replace("./index.html")};
 }
