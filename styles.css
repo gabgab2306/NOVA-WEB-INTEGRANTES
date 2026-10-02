@@ -382,3 +382,5 @@ html,body{height:100%;overflow:hidden}
     gap: 18px;
   }
 }
+
+.portal-loading{min-height:calc(100vh - 150px);display:grid;place-content:center;justify-items:center;text-align:center;padding:40px 20px;color:#dce5f2}.portal-loading-mark{width:64px;height:64px;border:1px solid rgba(216,173,77,.55);border-radius:50%;display:grid;place-items:center;color:#d8ad4d;font:700 28px Georgia,serif;box-shadow:0 0 35px rgba(216,173,77,.12);margin-bottom:22px}.portal-loading h1{font:700 clamp(25px,5vw,40px) Georgia,serif;color:#e8edf5;margin:8px 0 12px}.portal-loading #portal-status{color:#8292a8;font-size:11px;letter-spacing:.4px;min-height:18px}.portal-loading #portal-status span{color:#d8ad4d;margin-right:7px}.diagnostic-detail{display:block;color:#d8ad4d;font-size:10px;margin:12px auto 18px;max-width:520px;word-break:break-word}
