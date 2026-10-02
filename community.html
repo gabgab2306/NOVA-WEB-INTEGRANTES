@@ -1,7 +1,57 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NOVA · Logros</title><link rel="stylesheet" href="./styles.css"></head><body><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="./portal.js"></script><script>
-boot("community","Logros","RECONOCIMIENTO",async()=>{
- const {data}=await db.from("evaluaciones").select("*, actividades(nombre)").eq("integrante_id",member.id).order("fecha_evaluacion",{ascending:false});const feedback=data||[];
- const achievements=[["✦","Primera intervención"],["◈","Voz NOVA"],["◇","Delegado NOVA"],["ϟ","Liderazgo"],["⌁","Organizador"]];
- document.querySelector("#page").innerHTML='<section class="page-intro"><p class="eyebrow">FEEDBACK & LOGROS</p><h1>Lo que vas construyendo.</h1><p>Tu recorrido dentro del club, reunido en un solo espacio.</p></section><div class="community-grid"><section class="panel"><p class="eyebrow">FEEDBACK</p><h2>Retroalimentación</h2><div class="list">'+(feedback.map(f=>'<article class="feedback"><b>'+esc(f.actividades?.nombre||"Evaluación NOVA")+'</b><p>'+esc(f.feedback||"Evaluación registrada sin comentario.")+'</p><small>'+esc(f.fecha_evaluacion||"")+'</small></article>').join("")||empty("Aún no tienes feedback publicado."))+'</div></section><section class="panel"><p class="eyebrow">LOGROS</p><h2>Tu vitrina</h2><div class="list">'+achievements.map(a=>'<div class="achievement"><span>'+a[0]+'</span><div><b>'+a[1]+'</b><small>Disponible según tu trayectoria</small></div></div>').join("")+'</div></section></div>';
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NOVA · Foro</title><link rel="stylesheet" href="./styles.css"></head><body><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="./portal.js"></script>
+<script>
+boot("community","Foro NOVA","COMUNIDAD EN VIVO",async()=>{
+ const page=document.querySelector("#page");
+ page.innerHTML=`
+  <section class="forum-hero"><div><p class="eyebrow">PLAZA NOVA · COMUNIDAD</p><h1>Ideas que nos <em>conectan.</em></h1><p>Comparte una opinión, recomienda algo, haz una pregunta o inicia una conversación con el club.</p></div><div class="forum-orbit"><span>◎</span><i></i><b></b></div></section>
+  <div class="forum-layout">
+   <section class="forum-main">
+    <form id="postForm" class="forum-composer panel"><div class="composer-heading"><div class="mini-avatar">${esc(initials(member.nombre_completo))}</div><div><b>¿Qué tienes en mente?</b><small>Publica para la comunidad NOVA</small></div></div><textarea id="postText" maxlength="700" rows="3" placeholder="Tu opinión, una idea para el club, una pregunta…"></textarea><div class="composer-footer"><small><span id="charCount">0</span>/700 · Respeta a los demás integrantes.</small><button class="button primary" type="submit">Publicar <span>↗</span></button></div><p id="forumMessage" class="form-message"></p></form>
+    <div class="forum-feed-heading"><div><p class="eyebrow">CONVERSACIONES</p><h2>Lo que está pasando.</h2></div><span class="live">● EN VIVO</span></div>
+    <div id="forumFeed" class="forum-feed"><div class="forum-loading">Preparando la plaza de NOVA…</div></div>
+   </section>
+   <aside class="forum-side">
+    <article class="panel forum-side-card"><p class="eyebrow">TU ESPACIO</p><div class="side-profile-avatar">${esc(initials(member.nombre_completo))}</div><h3>${esc(firstName(member.nombre_completo))}</h3><p>@${esc(member.username||"nova")}</p><a href="./profile.html" class="button secondary">Personalizar perfil →</a></article>
+    <article class="panel forum-rules"><p class="eyebrow">ACUERDOS DE CONVIVENCIA</p><h3>Una comunidad con respeto.</h3><ul><li>Las ideas se discuten, las personas se respetan.</li><li>No publiques teléfonos, contraseñas ni datos privados.</li><li>Evita insultos, acoso y contenido que exponga a otros.</li><li>Si algo te preocupa, comunícalo a Directiva.</li></ul></article>
+    <article class="forum-side-quote"><span>✦</span><p>La palabra también construye comunidad.</p><small>NOVA LEADERSHIP CLUB</small></article>
+   </aside>
+  </div>`;
+ const postText=document.querySelector("#postText"),charCount=document.querySelector("#charCount"),forumMessage=document.querySelector("#forumMessage"),feed=document.querySelector("#forumFeed");
+ postText.addEventListener("input",()=>charCount.textContent=postText.value.length);
+ const avatar=(p)=>p?.avatar_url?'<img src="'+esc(p.avatar_url)+'" alt="">':esc(initials(p?.nombre_visible||"NOVA"));
+ const timeAgo=(v)=>{const diff=Math.max(0,Date.now()-new Date(v).getTime()),m=Math.floor(diff/60000);if(m<1)return"Ahora mismo";if(m<60)return" Hace "+m+" min";const h=Math.floor(m/60);if(h<24)return"Hace "+h+" h";return dateText(v)};
+ async function loadForum(){
+  const [postsR,commentsR,profilesR]=await Promise.all([
+   db.from("community_posts").select("*").order("creado_en",{ascending:false}).limit(40),
+   db.from("community_comments").select("*").order("creado_en",{ascending:true}).limit(300),
+   db.from("integrante_perfiles").select("integrante_id,nombre_visible,username,avatar_url,estado,frase")
+  ]);
+  if(postsR.error||commentsR.error||profilesR.error){feed.innerHTML='<div class="panel forum-empty"><span>✦</span><h3>La plaza está descansando.</h3><p>No pudimos cargar las conversaciones. Intenta actualizar la página.</p></div>';return}
+  const profiles=new Map((profilesR.data||[]).map(p=>[p.integrante_id,p]));
+  const commentsByPost=new Map();
+  (commentsR.data||[]).forEach(c=>{if(!commentsByPost.has(c.post_id))commentsByPost.set(c.post_id,[]);commentsByPost.get(c.post_id).push(c)});
+  const posts=postsR.data||[];
+  feed.innerHTML=posts.length?posts.map(p=>{
+   const author=profiles.get(p.author_integrante_id)||{nombre_visible:"Integrante NOVA",username:"nova",estado:"Integrante"};
+   const mine=p.author_integrante_id===member.id,comments=commentsByPost.get(p.id)||[];
+   return `<article class="forum-post panel" data-post="${p.id}">
+    <div class="post-head"><div class="post-avatar">${avatar(author)}</div><div class="post-author"><b>${esc(author.nombre_visible)}</b><small>@${esc(author.username||"nova")} · ${esc(author.estado||"Integrante")}</small></div><time>${esc(timeAgo(p.creado_en))}</time>${mine?'<button class="delete-post" data-delete="'+p.id+'" title="Eliminar publicación" aria-label="Eliminar publicación">×</button>':""}</div>
+    <p class="post-content">${esc(p.contenido).replace(/\n/g,"<br>")}</p>
+    ${author.frase?'<div class="author-quote">“'+esc(author.frase)+'”</div>':""}
+    <div class="post-actions"><span>✦ ${comments.length} comentario${comments.length===1?"":"s"}</span><button class="toggle-comments" data-toggle="${p.id}">${comments.length?"Ver conversación":"Comentar"} <span>↘</span></button></div>
+    <div class="post-comments" id="comments-${p.id}" ${comments.length?"":"hidden"}>
+     <div class="comment-list">${comments.map(c=>{const ca=profiles.get(c.author_integrante_id)||{nombre_visible:"Integrante NOVA",username:"nova"};return '<div class="forum-comment"><div class="comment-avatar">'+avatar(ca)+'</div><div class="comment-bubble"><b>'+esc(ca.nombre_visible)+' <small>@'+esc(ca.username||"nova")+'</small></b><p>'+esc(c.contenido)+'</p><time>'+esc(timeAgo(c.creado_en))+'</time></div></div>'}).join("")}</div>
+     <form class="comment-form" data-comment-form="${p.id}"><input name="comment" maxlength="400" placeholder="Escribe una respuesta…" required><button aria-label="Enviar comentario" type="submit">↑</button></form>
+    </div>
+   </article>`;
+  }).join(""):'<div class="panel forum-empty"><span>✧</span><h3>La primera voz puede ser la tuya.</h3><p>Comparte una idea o inicia una conversación. Este espacio lo construyen ustedes.</p></div>';
+  feed.querySelectorAll("[data-toggle]").forEach(btn=>btn.addEventListener("click",()=>{const el=document.getElementById("comments-"+btn.dataset.toggle);el.hidden=!el.hidden;btn.innerHTML=el.hidden?"Ver conversación <span>↘</span>":"Ocultar conversación <span>↗</span>"}));
+  feed.querySelectorAll("[data-comment-form]").forEach(form=>form.addEventListener("submit",async e=>{e.preventDefault();const postId=form.dataset.commentForm,input=form.elements.comment,content=input.value.trim();if(!content)return;const {error}=await db.from("community_comments").insert({post_id:postId,author_integrante_id:member.id,contenido:content});if(error){forumMessage.textContent="No pudimos enviar el comentario. Inténtalo otra vez.";return}await loadForum();const section=document.getElementById("comments-"+postId);if(section)section.hidden=false;const toggle=feed.querySelector('[data-toggle="'+postId+'"]');if(toggle)toggle.innerHTML='Ocultar conversación <span>↗</span>'}));
+  feed.querySelectorAll("[data-delete]").forEach(btn=>btn.addEventListener("click",async()=>{if(!confirm("¿Quieres eliminar esta publicación?"))return;const {error}=await db.from("community_posts").delete().eq("id",btn.dataset.delete).eq("author_integrante_id",member.id);if(error){forumMessage.textContent="No se pudo eliminar la publicación.";return}await loadForum()}));
+ }
+ document.querySelector("#postForm").addEventListener("submit",async e=>{e.preventDefault();const contenido=postText.value.trim();if(!contenido){forumMessage.textContent="Escribe algo antes de publicar.";return}forumMessage.textContent="Publicando…";const {error}=await db.from("community_posts").insert({author_integrante_id:member.id,contenido});if(error){forumMessage.textContent="No pudimos publicar. Inténtalo otra vez.";return}postText.value="";charCount.textContent="0";forumMessage.textContent="Publicado en la plaza NOVA. ✦";await loadForum()});
+ await loadForum();
+ db.channel("nova-forum-live").on("postgres_changes",{event:"*",schema:"public",table:"community_posts"},()=>loadForum()).on("postgres_changes",{event:"*",schema:"public",table:"community_comments"},()=>loadForum()).subscribe();
 });
 </script></body></html>
