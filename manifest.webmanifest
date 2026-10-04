@@ -1,0 +1,20 @@
+{
+  "id": "/",
+  "name": "NOVA · Integrantes",
+  "short_name": "NOVA",
+  "description": "Espacio privado de integrantes de NOVA Leadership Club",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#050914",
+  "theme_color": "#050914",
+  "icons": [
+    {
+      "src": "/icons/nova-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
