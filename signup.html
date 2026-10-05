@@ -1,13 +1,13 @@
 <!doctype html>
 <html lang="es">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NOVA · Crear cuenta</title><link rel="stylesheet" href="./styles.css"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NOVA · Crear cuenta de integrante</title><link rel="stylesheet" href="./styles.css"></head>
 <body>
 <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
 <section class="auth-view signup-view">
 <div>
 <a class="back-link" href="./index.html">← Volver al acceso</a>
 <div class="brand-mark"><span>N</span><i>O</i><b>V</b><em>A</em></div>
-<p class="kicker">NOVA · PRE-REGISTRO</p>
+<p class="kicker">NOVA · CUENTA DE INTEGRANTE</p>
 <h1>Forma parte de<br><strong>NOVA</strong></h1>
 <p class="lead">Completa tu registro. La Directiva revisará tu solicitud antes de habilitar tu acceso como integrante.</p>
 <div class="auth-card signup-card">
@@ -18,7 +18,7 @@
 <label>Sección<input id="seccion" required placeholder="Ej. E"></label>
 <label>Teléfono<input id="telefono" required placeholder="809-000-0000"></label>
 </div>
-<label>Correo electrónico<input id="email" type="email" required placeholder="tu.correo@email.com"></label>
+<label>Correo electrónico<input id="email" type="email" required autocomplete="email" placeholder="El correo con el que fuiste aprobado"></label><div class="form-grid"><label>Contraseña<input id="password" type="password" required minlength="8" autocomplete="new-password" placeholder="Mínimo 8 caracteres"></label><label>Confirmar contraseña<input id="passwordConfirm" type="password" required minlength="8" autocomplete="new-password" placeholder="Repite tu contraseña"></label></div>
 <fieldset><legend>¿Qué te interesa dentro de NOVA?</legend><div class="choice-grid">
 <label class="choice"><input type="checkbox" name="interes" value="MUN / ONU"><span>MUN / ONU</span></label>
 <label class="choice"><input type="checkbox" name="interes" value="Debate"><span>Debate</span></label>
@@ -29,7 +29,80 @@
 <label>¿Tienes experiencia previa?<select id="experiencia"><option value="false">No</option><option value="true">Sí</option></select></label>
 <label>Cuéntanos brevemente tu experiencia<textarea id="detalle" rows="2" placeholder="Opcional"></textarea></label>
 <label>¿Por qué quieres formar parte de NOVA?<textarea id="motivacion" rows="3" required placeholder="Cuéntanos qué buscas aportar o aprender."></textarea></label>
-<button class="primary-btn" type="submit">Enviar solicitud <span>→</span></button>
+<button class="primary-btn" type="submit">Crear mi cuenta <span>→</span></button>
+</form>
+<p id="signupMessage" class="auth-message"></p>
+</div>
+</div>
+</section>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const db=supabase.createClient("https://hogbjrbaeedlyglegjle.supabase.co","sb_publishable_NWG23rPztabdaFhEyNtN5w_rrCeMTC5");
+const form=document.querySelector("#signupForm"),msg=document.querySelector("#signupMessage");
+form.onsubmit=async e=>{
+ e.preventDefault();msg.textContent="Enviando solicitud…";
+ const intereses=[...document.querySelectorAll('input[name="interes"]:checked')].map(x=>x.value);
+ if(!intereses.length){msg.textContent="Selecciona al menos un área de interés.";return}
+ const payload={p_nombre_completo:nombre.value.trim(),p_curso:curso.value.trim(),p_seccion:seccion.value.trim(),p_telefono:telefono.value.trim(),p_email:email.value.trim().toLowerCase(),p_intereses:intereses,p_experiencia_previa:experiencia.value==="true",p_detalle_experiencia:detalle.value.trim(),p_motivacion:motivacion.value.trim()};
+ const r=await db.rpc("register_pre_registro",payload);
+ if(r.error){msg.textContent=r.error.message.includes("duplicate")?"Ya existe una solicitud con ese correo.":"No pudimos enviar tu solicitud. Intenta nuevamente.";return}
+ msg.textContent="Solicitud enviada. La Directiva revisará tu registro.";
+ form.reset();
+};
+</script>
+</body></html<script>
+const db=supabase.createClient("https://hogbjrbaeedlyglegjle.supabase.co","sb_publishable_NWG23rPztabdaFhEyNtN5w_rrCeMTC5",{auth:{persistSession:true,autoRefreshToken:true,storage:window.localStorage}});
+const form=document.querySelector("#signupForm"),msg=document.querySelector("#signupMessage");
+form.onsubmit=async e=>{
+ e.preventDefault();
+ const email=document.querySelector("#email").value.trim().toLowerCase();
+ const password=document.querySelector("#password").value;
+ const confirm=document.querySelector("#passwordConfirm").value;
+ if(password.length<8){msg.textContent="La contraseña debe tener al menos 8 caracteres.";return}
+ if(password!==confirm){msg.textContent="Las contraseñas no coinciden.";return}
+ msg.textContent="Creando tu cuenta…";
+ const res=await fetch("https://hogbjrbaeedlyglegjle.supabase.co/functions/v1/create-integrante-account",{
+   method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,password})
+ });
+ let data={};try{data=await res.json()}catch{}
+ if(!res.ok){msg.textContent=data.error||"No pudimos crear la cuenta.";return}
+ msg.textContent="Cuenta creada. Entrando a NOVA…";
+ const {error:loginError}=await db.auth.signInWithPassword({email,password});
+ if(loginError){msg.textContent="La cuenta fue creada. Vuelve al acceso e inicia sesión.";return}
+ window.location.href="./home.html";
+};
+</script>e html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NOVA · Crear cuenta de integrante</title><link rel="stylesheet" href="./styles.css"></head>
+<body>
+<div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
+<section class="auth-view signup-view">
+<div>
+<a class="back-link" href="./index.html">← Volver al acceso</a>
+<div class="brand-mark"><span>N</span><i>O</i><b>V</b><em>A</em></div>
+<p class="kicker">NOVA · CUENTA DE INTEGRANTE</p>
+<h1>Forma parte de<br><strong>NOVA</strong></h1>
+<p class="lead">Completa tu registro. La Directiva revisará tu solicitud antes de habilitar tu acceso como integrante.</p>
+<div class="auth-card signup-card">
+<form id="signupForm">
+<div class="form-grid">
+<label>Nombre completo<input id="nombre" required placeholder="Tu nombre completo"></label>
+<label>Curso<input id="curso" required placeholder="Ej. 6to"></label>
+<label>Sección<input id="seccion" required placeholder="Ej. E"></label>
+<label>Teléfono<input id="telefono" required placeholder="809-000-0000"></label>
+</div>
+<label>Correo electrónico<input id="email" type="email" required autocomplete="email" placeholder="El correo con el que fuiste aprobado"></label><div class="form-grid"><label>Contraseña<input id="password" type="password" required minlength="8" autocomplete="new-password" placeholder="Mínimo 8 caracteres"></label><label>Confirmar contraseña<input id="passwordConfirm" type="password" required minlength="8" autocomplete="new-password" placeholder="Repite tu contraseña"></label></div>
+<fieldset><legend>¿Qué te interesa dentro de NOVA?</legend><div class="choice-grid">
+<label class="choice"><input type="checkbox" name="interes" value="MUN / ONU"><span>MUN / ONU</span></label>
+<label class="choice"><input type="checkbox" name="interes" value="Debate"><span>Debate</span></label>
+<label class="choice"><input type="checkbox" name="interes" value="Oratoria"><span>Oratoria</span></label>
+<label class="choice"><input type="checkbox" name="interes" value="Artística"><span>Artística</span></label>
+<label class="choice"><input type="checkbox" name="interes" value="Staff"><span>Staff</span></label>
+</div></fieldset>
+<label>¿Tienes experiencia previa?<select id="experiencia"><option value="false">No</option><option value="true">Sí</option></select></label>
+<label>Cuéntanos brevemente tu experiencia<textarea id="detalle" rows="2" placeholder="Opcional"></textarea></label>
+<label>¿Por qué quieres formar parte de NOVA?<textarea id="motivacion" rows="3" required placeholder="Cuéntanos qué buscas aportar o aprender."></textarea></label>
+<button class="primary-btn" type="submit">Crear mi cuenta <span>→</span></button>
 </form>
 <p id="signupMessage" class="auth-message"></p>
 </div>
